@@ -677,8 +677,8 @@ def trades(limit: int, platform: Optional[str]) -> None:
             table.add_column("Price", justify="right")
             table.add_column("Size", justify="right")
 
-        for t in recent:
-            table.add_row(
+            for t in recent:
+                table.add_row(
                 t.timestamp[:19],
                 t.platform,
                 t.market_name[:30],
