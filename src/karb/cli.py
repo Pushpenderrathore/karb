@@ -525,8 +525,8 @@ def balance() -> None:
         if balances["polymarket_usdc"] > 0 or True:  # Always show
             table.add_row("Polymarket", f"${balances['polymarket_usdc']:.2f}", "USDC")
 
-        if balances["kalshi_usd"] > 0 or True:  # Always show
-            table.add_row("Kalshi", f"${balances['kalshi_usd']:.2f}", "USD")
+        if balances.get("kalshi_usd", 0) > 0 or True:  # Always show
+            table.add_row("Kalshi", f"${balances.get('kalshi_usd',0):.2f}", "USD")
 
         console.print(table)
         console.print(f"\n[bold]Total:[/bold] ${balances['total_usd']:.2f}")
