@@ -651,9 +651,45 @@ def trades(limit: int, platform: Optional[str]) -> None:
     """Show trade history."""
     from karb.tracking.trades import TradeLog
 
-    trade_log = TradeLog()
-    recent = trade_log.get_trades(limit=limit, platform=platform)
+    #trade_log = TradeLog()
+    #recent = await trade_log.get_trades(limit=limit, platform=platform)
+    
+    @cli.command()
+    @click.option("--limit", default=30, help="Maximum trades to show")
+    @click.option("--platform", type=click.Choice(["polymarket", "kalshi"]), help="Filter by platform")
+    def trades(limit: int, platform: Optional[str]) -> None:
+        """Show trade history."""
+        from karb.tracking.trades import TradeLog
 
+        async def _trades():
+            trade_log = TradeLog()
+            recent = await trade_log.get_trades(limit=limit, platform=platform)
+
+            if not recent:
+                console.print("\n[yellow]No trades recorded yet[/yellow]\n")
+                return
+
+            table = Table(title=f"Recent Trades (showing {len(recent)})")
+            table.add_column("Time", style="dim")
+            table.add_column("Platform")
+            table.add_column("Market", max_width=30)
+            table.add_column("Action")
+            table.add_column("Price", justify="right")
+            table.add_column("Size", justify="right")
+
+        for t in recent:
+            table.add_row(
+                t.timestamp[:19],
+                t.platform,
+                t.market_name[:30],
+                f"{t.side.upper()} {t.outcome.upper()}",
+                f"${t.price:.3f}",
+                f"${t.size:.2f}",
+            )
+
+        console.print(table)
+
+    asyncio.run(_trades())
     if not recent:
         console.print("\n[yellow]No trades recorded yet[/yellow]\n")
         return
@@ -704,7 +740,7 @@ def pnl() -> None:
     console.print("\n[bold]Profit & Loss Summary[/bold]\n")
 
     # Today's trades
-    today_summary = trade_log.get_daily_summary()
+    today_summary = await trade_log.get_daily_summary()
     console.print("[bold cyan]Today[/bold cyan]")
     console.print(f"  Trades: {today_summary['trade_count']}")
     console.print(f"  Cost: ${today_summary['total_cost']:.2f}")
