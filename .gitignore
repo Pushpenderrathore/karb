@@ -46,6 +46,7 @@ env/
 # Logs
 *.log
 logs/
+meeting_log.txt
 
 # OS
 .DS_Store
